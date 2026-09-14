@@ -11,6 +11,25 @@ pip install -r requirements.txt
 
 ## Test
 
+Download [axisposepp_shapenet_weights.zip](https://github.com/anonymous-pose/Axispose_plus_plus/releases/download/addfile/axisposepp_shapenet_weights.zip), place it in the repository root, and extract it:
+
+```bash
+unzip axisposepp_shapenet_weights.zip
+```
+
+After extraction, the repository contains:
+
+```text
+AxisPose++/
+├── checkpoints/
+│   ├── axisposepp_shapenet.pt
+│   └── dinov2_vits14_reg4_pretrain.pth
+├── configs/
+├── data/
+├── axisposepp/
+└── scripts/
+```
+
 ```bash
 python scripts/test_shapenet.py --config configs/test_shapenet.yaml
 ```
