@@ -1,0 +1,45 @@
+data:
+  dataset: shapenet
+  root: data/shapenet
+  train_pair_file: train_pairs.pkl
+  test_pair_file: test_pairs.pkl
+  image_size: 336
+
+model:
+  base_channels: 64
+  pose_dim: 12
+  geometry_head:
+    pool_size: 14
+    hidden_dim: 512
+    dropout: 0.0
+  dino:
+    weights_path: checkpoints/dinov2_vits14_reg4_pretrain.pth
+    layer: 9
+    freeze: true
+
+loss:
+  axis_hm_weight: 1.0
+  center_hm_weight: 1.0
+  center_coord_weight: 1.0
+  direction_weight: 1.0
+  axis_fg_weight: 20.0
+  axis_bg_weight: 1.0
+  axis_threshold: 0.05
+  axis_dice_weight: 1.0
+  derive_geometry_from_axis: true
+  parallel_eps: 0.05
+
+train:
+  output_dir: outputs/train_shapenet
+  epochs: 100
+  batch_size: 24
+  num_workers: 4
+  lr: 0.0001
+  weight_decay: 0.0001
+  amp: true
+  grad_clip: 1.0
+  log_interval: 20
+  val_interval: 2
+  checkpoint_interval: 10
+  save_latest: true
+  resume: ""
