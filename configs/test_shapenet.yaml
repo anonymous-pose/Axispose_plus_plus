@@ -1,0 +1,73 @@
+data:
+  dataset: shapenet
+  root: data/shapenet
+  test_pair_file: test_pairs.pkl
+  image_size: 336
+
+model:
+  base_channels: 64
+  pose_dim: 12
+  geometry_head:
+    pool_size: 14
+    hidden_dim: 512
+    dropout: 0.0
+  dino:
+    weights_path: checkpoints/dinov2_vits14_reg4_pretrain.pth
+    layer: 9
+    freeze: true
+
+test:
+  checkpoint: checkpoints/axisposepp_shapenet.pt
+  output_dir: outputs/test_shapenet
+  split: val
+  batch_size: 24
+  num_workers: 4
+  axis_source: pred_heatmap
+  parser: peak_multi
+  min_center_distance: 8
+  geo_weight: 0.5
+  multi_axis_candidate_mode: full
+  multi_axis_top_k: 5
+  multi_peak_top_k: 128
+  multi_min_angle_deg: 5.0
+  max_relative_rot_deg: 45
+  save_pred_poses: true
+  pred_pose_filename: pred_poses.npz
+
+visualization:
+  enabled: true
+  stride: 1
+  max_samples: 100
+  line_width: 2
+  bbox_info_file: data/shapenet/bbox_3d.json
+  bbox_required: true
+  use_model_points_bbox: false
+  pred_bbox_use_gt_translation: true
+
+intrinsics:
+  K:
+    - [525.0, 0.0, 256.0]
+    - [0.0, 525.0, 256.0]
+    - [0.0, 0.0, 1.0]
+  scale_to_image: true
+  src_size: [512, 512]
+
+c2:
+  lamda0: 838.61
+  flags: [1, 2]
+  point_distances: [80.0, 100.0, 120.0, 140.0, 160.0, 180.0]
+  sign_candidates:
+    - [1, 1, 1]
+  force_real: true
+  imag_tol: 0.001
+  translation_scale: gt_norm
+  selection: axis_reprojection
+  axis_reproj_axis_length: 1.0
+  axis_reproj_dir_weight: 1.0
+  axis_reproj_endpoint_weight: 0.0
+  axis_reproj_center_weight: 0.1
+  axis_reproj_imag_weight: 0.05
+  axis_reproj_heatmap_weight: 1.0
+
+symmetry:
+  enabled: false
