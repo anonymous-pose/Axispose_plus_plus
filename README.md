@@ -99,3 +99,30 @@ python scripts/test_shapenet_large_rotation.py --config configs/test_shapenet_la
 ```
 
 The configuration uses the same pretrained model without retraining and disables the reference-relative rotation constraint in candidate selection. Per-interval ACC@30 and median angular error are printed at completion. Results and bounding-box visualizations are saved in `outputs/test_shapenet_large_rotation/`, with per-interval metrics in `summary_by_angle.csv` and `summary_by_angle.json`.
+
+## Reference Coordinate Frame Sensitivity
+
+This experiment measures how AxisPose++ responds to a change in the object coordinate frame at test time. It uses the same 100 public ShapeNet reference–target pairs in all conditions.
+
+Complete the repository setup and extract the released ShapeNet checkpoints as described above. Then run the following commands from the repository root:
+
+```bash
+python -m pip install numpy==1.26.4 opencv-python-headless==4.11.0.86 "Pillow>=10.1"
+python scripts/test_reference_frame.py
+```
+
+For each pair, we sample a 3D rotation axis with a fixed random seed (`2027`) and use the same axis at 0°, 15°, 30°, and 60°. Let `Q` be the rotation defining the new object coordinate frame. We update the reference rotation to `R_ref @ Q.T` and reproject the reference tri-axis. Both RGB images, camera intrinsics, and translations remain fixed. The target annotation is expressed in the new frame as `R_target @ Q.T`, which preserves the ground-truth relative rotation. We rerun inference for each condition and multiply the predicted target rotation on the right by `Q` before measuring its angular error in the original frame.
+
+Results are saved to `outputs/reference_frame/`:
+
+- `summary.csv` contains aggregate metrics and changes relative to 0°.
+- `paired_errors.csv` contains per-pair angular errors and prediction differences relative to the 0° condition.
+- `q0/`, `q15/`, `q30/`, and `q60/` contain the selected poses and per-pair frame transformations.
+- `figures/` contains four illustrative comparisons and a combined `overview.png`. The target overlays use ground-truth translation for both boxes to visualize rotation differences.
+- `protocol.json` records the run settings, software versions, and test pair list checksum.
+
+Use `--all-figures` to save a panel for every test pair. For a quick check on four pairs, run:
+
+```bash
+python scripts/test_reference_frame.py --max-samples 4 --angles 0 60 --out outputs/reference_frame_smoke
+```
